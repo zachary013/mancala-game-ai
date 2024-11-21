@@ -26,18 +26,12 @@ public class MancalaGame {
                     playHumanVsHumanGame();
                     break;
                 case 3:
-                    saveGame(scanner);
-                    break;
-                case 4:
                     loadSavedGame(scanner);
                     break;
-                case 5:
+                case 4:
                     listSavedGames();
                     break;
-                case 6:
-                    deleteSavedGame(scanner);
-                    break;
-                case 7:
+                case 5:
                     System.out.println("Exiting the game. Goodbye!");
                     scanner.close();
                     return;
@@ -58,15 +52,13 @@ public class MancalaGame {
                 System.out.println("\nChoose game mode:");
                 System.out.println("1. Play against AI");
                 System.out.println("2. Play against another human");
-                System.out.println("3. Save current game");
-                System.out.println("4. Load saved game");
-                System.out.println("5. List saved games");
-                System.out.println("6. Delete saved game");
-                System.out.println("7. Exit");
-                System.out.print("Enter your choice (1-7): ");
+                System.out.println("3. Load saved game");
+                System.out.println("4. List saved games");
+                System.out.println("5. Exit");
+                System.out.print("Enter your choice (1-5): ");
 
                 int mode = Integer.parseInt(scanner.nextLine());
-                if (mode >= 1 && mode <= 7) {
+                if (mode >= 1 && mode <= 5) {
                     return mode;
                 }
                 System.out.println("Invalid choice. Please try again.");
@@ -84,12 +76,6 @@ public class MancalaGame {
 
     private static void playHumanVsHumanGame() {
         game.playGameHumanVsHuman(currentPosition);
-    }
-
-    private static void saveGame(Scanner scanner) {
-        System.out.print("Enter a name for your save file: ");
-        String filename = scanner.nextLine();
-        GameSaveManager.saveGame(currentPosition, filename);
     }
 
     private static void loadSavedGame(Scanner scanner) {
@@ -118,14 +104,4 @@ public class MancalaGame {
         }
     }
 
-    private static void deleteSavedGame(Scanner scanner) {
-        System.out.print("Enter the filename of the saved game to delete: ");
-        String filename = scanner.nextLine();
-        boolean deleted = GameSaveManager.deleteSaveFile(filename);
-        if (deleted) {
-            System.out.println("Game save deleted successfully.");
-        } else {
-            System.out.println("Failed to delete game save. File may not exist.");
-        }
-    }
 }

@@ -71,7 +71,9 @@ class Mancala extends GameSearch {
         MancalaPosition pos = new MancalaPosition((MancalaPosition) p);
         MancalaMove mMove = (MancalaMove) move;
 
-        if (!pos.isValidMove(player ? mMove.getPitIndex() : mMove.getPitIndex() + 7, player)) {
+        int actualPitIndex = player ? mMove.getPitIndex() : mMove.getPitIndex() + 7;
+
+        if (!pos.isValidMove(actualPitIndex, player)) {
             System.out.println("Invalid move! Please try again.");
             return p;
         }
@@ -94,12 +96,14 @@ class Mancala extends GameSearch {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             try {
-                System.out.print("Enter pit number " + (isPlayer1 ? "(0-5): " : "(0-5 for pits 7-12): "));
+                System.out.print("Enter pit number " + (isPlayer1 ? "(1-6): " : "(7-12): "));
                 int pit = scanner.nextInt();
-                if (pit >= 0 && pit <= 5) {
-                    return new MancalaMove(pit);
+                if (isPlayer1 && pit >= 1 && pit <= 6) {
+                    return new MancalaMove(pit - 1); // Subtract 1 to convert to 0-based index
+                } else if (!isPlayer1 && pit >= 7 && pit <= 12) {
+                    return new MancalaMove(pit - 7); // Subtract 7 to convert to 0-based index
                 } else {
-                    System.out.println("Invalid pit. Choose between 0 and 5.");
+                    System.out.println("Invalid pit. Choose between " + (isPlayer1 ? "1 and 6" : "7 and 12") + ".");
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Please enter a valid number.");
@@ -114,8 +118,8 @@ class Mancala extends GameSearch {
         System.out.println("2. Each small pit starts with 4 stones");
         System.out.println("3. On your turn:");
         System.out.println("   - Choose a pit from your side");
-        System.out.println("   - Player 1: choose from pits 0-5");
-        System.out.println("   - Player 2: choose from pits 0-5 (corresponding to pits 7-12)");
+        System.out.println("   - Player 1: choose from pits 1-6");
+        System.out.println("   - Player 2: choose from pits 7-12");
         System.out.println("   - Stones are distributed counter-clockwise, one in each pit");
         System.out.println("   - Skip your opponent's store but not your own");
         System.out.println("4. Special rules:");
