@@ -31,11 +31,6 @@ public class GameSaveManager {
         }
     }
 
-    public static void quickSave(MancalaPosition position) {
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        saveGame(position, "quicksave_" + timestamp);
-    }
-
     public static MancalaPosition loadGame(String filename) {
         if (!filename.endsWith(FILE_EXTENSION)) {
             filename += FILE_EXTENSION;
@@ -74,23 +69,4 @@ public class GameSaveManager {
         }
     }
 
-    public static boolean deleteSaveFile(String filename) {
-        if (!filename.endsWith(FILE_EXTENSION)) {
-            filename += FILE_EXTENSION;
-        }
-
-        try {
-            Path savePath = Paths.get(SAVE_DIRECTORY, filename);
-            boolean deleted = Files.deleteIfExists(savePath);
-            if (deleted) {
-                System.out.println("Save file deleted: " + filename);
-            } else {
-                System.out.println("Save file not found: " + filename);
-            }
-            return deleted;
-        } catch (IOException e) {
-            System.err.println("Error deleting save file: " + e.getMessage());
-            return false;
-        }
-    }
 }
