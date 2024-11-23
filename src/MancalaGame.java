@@ -69,9 +69,34 @@ public class MancalaGame {
     }
 
     private static void playAIGame(Scanner scanner) {
+        int difficulty = getDifficulty(scanner);
+        game.setDifficulty(difficulty);
+
         System.out.print("Would you like to go first? (y/n): ");
         boolean humanFirst = scanner.nextLine().toLowerCase().startsWith("y");
+
         game.playGameAgainstAI(currentPosition, humanFirst);
+    }
+
+    //Setting game difficulty
+    private static int getDifficulty(Scanner scanner) {
+        while (true) {
+            try {
+                System.out.println("\nChoose AI difficulty:");
+                System.out.println("1. Easy");
+                System.out.println("2. Medium");
+                System.out.println("3. Hard");
+                System.out.print("Enter difficulty (1-3): ");
+
+                int difficulty = Integer.parseInt(scanner.nextLine());
+                if (difficulty >= 1 && difficulty <= 3) {
+                    return difficulty;
+                }
+                System.out.println("Invalid choice. Please enter 1, 2, or 3.");
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number.");
+            }
+        }
     }
 
     private static void playHumanVsHumanGame() {

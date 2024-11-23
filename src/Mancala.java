@@ -4,6 +4,15 @@ import java.util.List;
 import java.util.Scanner;
 
 class Mancala extends GameSearch {
+    private int aiDifficulty; // 1 = easy, 2 = medium, 3 = hard
+
+    public void setDifficulty(int level) {
+        this.aiDifficulty = level;
+    }
+
+    private int player1HelpCount = 5;
+    private int player2HelpCount = 5;
+
     @Override
     public boolean drawnPosition(Position p) {
         MancalaPosition pos = (MancalaPosition) p;
@@ -26,21 +35,53 @@ class Mancala extends GameSearch {
         int opponentStore = player ? 13 : 6;
         float storesDiff = pos.getBoard()[playerStore] - pos.getBoard()[opponentStore];
 
-        // Consider stones in player's pits as potential points
-        int playerPitsSum = 0;
-        int opponentPitsSum = 0;
-        for (int i = 0; i < 6; i++) {
-            if (player) {
-                playerPitsSum += pos.getBoard()[i];
-                opponentPitsSum += pos.getBoard()[i + 7];
-            } else {
-                playerPitsSum += pos.getBoard()[i + 7];
-                opponentPitsSum += pos.getBoard()[i];
-            }
-        }
+        // Adjust evaluation strategy based on difficulty
+        switch (aiDifficulty) {
+            case 1: // Easy - only considers stores difference
+                return storesDiff;
 
-        // Weight store stones more heavily than pit stones
-        return storesDiff + 0.5f * (playerPitsSum - opponentPitsSum);
+            case 2: // Medium - considers stores and some pit weights
+                int playerPitsSum = 0;
+                int opponentPitsSum = 0;
+                for (int i = 0; i < 6; i++) {
+                    if (player) {
+                        playerPitsSum += pos.getBoard()[i];
+                        opponentPitsSum += pos.getBoard()[i + 7];
+                    } else {
+                        playerPitsSum += pos.getBoard()[i + 7];
+                        opponentPitsSum += pos.getBoard()[i];
+                    }
+                }
+                return storesDiff + 0.5f * (playerPitsSum - opponentPitsSum);
+
+            case 3: // Hard - considers stores, pits, and strategic positions
+                float evaluation = storesDiff * 2.0f; // Give more weight to stores
+
+                // Add weight for stones in pits
+                for (int i = 0; i < 6; i++) {
+                    int playerSide = player ? i : i + 7;
+                    int opponentSide = player ? i + 7 : i;
+
+                    // Give more weight to pits closer to the store
+                    float weight = (6 - i) / 6.0f;
+                    evaluation += pos.getBoard()[playerSide] * weight;
+                    evaluation -= pos.getBoard()[opponentSide] * weight;
+                }
+
+                // Extra points for having stones in pits that can land in store
+                int storeDistance = player ? 6 : 13;
+                for (int i = 0; i < 6; i++) {
+                    int pit = player ? i : i + 7;
+                    if (pos.getBoard()[pit] == (storeDistance - pit)) {
+                        evaluation += 1.5f;
+                    }
+                }
+
+                return evaluation;
+
+            default:
+                return storesDiff;
+        }
     }
 
     @Override
@@ -82,9 +123,26 @@ class Mancala extends GameSearch {
         return pos;
     }
 
+
     @Override
     public boolean reachedMaxDepth(Position p, int depth) {
-        return depth >= 6 || ((MancalaPosition)p).isGameOver();
+        // Adjust search depth based on difficulty
+        int maxDepth;
+        switch (aiDifficulty) {
+            case 1: // Easy
+                maxDepth = 2;
+                break;
+            case 2: // Medium
+                maxDepth = 4;
+                break;
+            case 3: // Hard
+                maxDepth = 6;
+                break;
+            default:
+                maxDepth = 4; // Default to medium
+                break;
+        }
+        return depth >= maxDepth || ((MancalaPosition)p).isGameOver();
     }
 
     @Override
@@ -132,6 +190,14 @@ class Mancala extends GameSearch {
 public void playGameAgainstAI(Position startingPosition, boolean humanPlayFirst) {
     MancalaPosition currentPosition = (MancalaPosition) startingPosition;
     Scanner scanner = new Scanner(System.in);
+
+    String difficultyLevel = "";
+    switch (aiDifficulty) {
+        case 1: difficultyLevel = "Easy"; break;
+        case 2: difficultyLevel = "Medium"; break;
+        case 3: difficultyLevel = "Hard"; break;
+    }
+    System.out.println("\nPlaying against AI (" + difficultyLevel + " difficulty)");
 
     // Initial AI move if human does not play first
     if (!humanPlayFirst) {
@@ -194,9 +260,15 @@ public void playGameAgainstAI(Position startingPosition, boolean humanPlayFirst)
     }
 }
 
+
     public void playGameHumanVsHuman(Position startingPosition) {
         MancalaPosition currentPosition = (MancalaPosition) startingPosition;
         Scanner scanner = new Scanner(System.in);
+
+        // Display initial help information
+        System.out.println("\nEach player has 5 help opportunities. Type 'H' to get AI suggestions.");
+        System.out.println("Player 1 help remaining: " + player1HelpCount);
+        System.out.println("Player 2 help remaining: " + player2HelpCount);
 
         while (true) {
             // Print current board state
@@ -215,7 +287,8 @@ public void playGameAgainstAI(Position startingPosition, boolean humanPlayFirst)
 
             // Show available moves for current player
             System.out.println("Available moves: " + currentPosition.getAvailableMoves(isPlayer1));
-            System.out.println("Press 'S' to save the game or enter a pit number");
+            System.out.println("Help remaining: " + (isPlayer1 ? player1HelpCount : player2HelpCount));
+            System.out.println("Press 'H' for help, 'S' to save, or enter a pit number");
 
             String input = scanner.nextLine().trim().toUpperCase();
 
@@ -225,6 +298,31 @@ public void playGameAgainstAI(Position startingPosition, boolean humanPlayFirst)
                 String filename = scanner.nextLine();
                 GameSaveManager.saveGame(currentPosition, filename);
                 break; // Allow for another turn after saving
+            }
+
+            // Handle help request
+            if (input.equals("H")) {
+                int helpCount = isPlayer1 ? player1HelpCount : player2HelpCount;
+                if (helpCount > 0) {
+                    // Use AI to suggest a move
+                    List<Object> suggestion = alphaBeta(0, currentPosition, isPlayer1);
+                    if (suggestion.size() > 1) {
+                        MancalaPosition suggestedPosition = (MancalaPosition) suggestion.get(1);
+                        // Find which move led to this position
+                        int suggestedMove = findSuggestedMove(currentPosition, suggestedPosition, isPlayer1);
+                        System.out.println("AI suggests moving from pit " + (suggestedMove + (isPlayer1 ? 1 : 7)));
+
+                        // Decrease help count
+                        if (isPlayer1) {
+                            player1HelpCount--;
+                        } else {
+                            player2HelpCount--;
+                        }
+                    }
+                } else {
+                    System.out.println("No help opportunities remaining!");
+                }
+                continue;
             }
 
             // Get move from current player
@@ -248,5 +346,33 @@ public void playGameAgainstAI(Position startingPosition, boolean humanPlayFirst)
             // Make the move
             currentPosition = (MancalaPosition) makeMove(currentPosition, HUMAN, move);
         }
+    }
+
+    private int findSuggestedMove(MancalaPosition current, MancalaPosition suggested, boolean isPlayer1) {
+        // Try each possible move and compare with suggested position
+        int start = isPlayer1 ? 0 : 7;
+        int end = isPlayer1 ? 5 : 12;
+
+        for (int i = start; i <= end; i++) {
+            if (current.getBoard()[i] > 0) {
+                MancalaPosition testPos = new MancalaPosition(current);
+                testPos.makeMove(new MancalaMove(i - start));
+                if (comparePositions(testPos, suggested)) {
+                    return i - start;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private boolean comparePositions(MancalaPosition pos1, MancalaPosition pos2) {
+        int[] board1 = pos1.getBoard();
+        int[] board2 = pos2.getBoard();
+        for (int i = 0; i < board1.length; i++) {
+            if (board1[i] != board2[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

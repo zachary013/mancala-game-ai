@@ -44,7 +44,7 @@ class MancalaPosition extends Position implements Serializable {
                 if (!first) {
                     moves.append(", ");
                 }
-                moves.append(i + 1); // Always display the pit number as 1-12
+                moves.append(isPlayer1 ? (i + 1) : (i)); // Always display the pit number as 1-12
                 first = false;
             }
         }
