@@ -17,11 +17,9 @@ This implementation of Mancala goes beyond the traditional two-player game by in
 
 ### Traditional Mancala Board Layout
 ![Mancala Game Board Preview](/screenshots/mancala1.jpg)
-*Reference image showing the traditional Mancala board layout with its distinctive pit arrangement*
 
 ### Game Implementation Interface
 ![Terminal View](/screenshots/mancala2.png)
-*Our implementation's terminal interface showing a Human vs AI game in progress. The numbers represent stone counts in each pit, with player and AI Mancalas at the ends.*
 
 </div>
 
