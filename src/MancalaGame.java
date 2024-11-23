@@ -81,13 +81,15 @@ public class MancalaGame {
     private static void loadSavedGame(Scanner scanner) {
         System.out.print("Enter the filename of the saved game: ");
         String filename = scanner.nextLine();
-        MancalaPosition savedGame = GameSaveManager.loadGame(filename);
-
+        SaveGameData Game = GameSaveManager.loadGamehaha(filename);
+        MancalaPosition savedGame = Game.getPosition();
         if (savedGame != null) {
             System.out.print("Continue this saved game? (y/n): ");
             if (scanner.nextLine().toLowerCase().startsWith("y")) {
                 currentPosition = savedGame;
-                System.out.println("Game loaded successfully. Returning to main menu.");
+                game.playGameAgainstAI(currentPosition, true);
+
+                //System.out.println("Game loaded successfully. Returning to main menu.");
             }
         }
     }

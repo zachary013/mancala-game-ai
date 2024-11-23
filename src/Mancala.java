@@ -130,46 +130,110 @@ class Mancala extends GameSearch {
         System.out.println("6. Player with the most stones in their store wins\n");
     }
 
-    public void playGameAgainstAI(Position startingPosition, boolean humanPlayFirst) {
-        MancalaPosition currentPosition = (MancalaPosition) startingPosition;
+//    public void playGameAgainstAI(Position startingPosition, boolean humanPlayFirst) {
+//        MancalaPosition currentPosition = (MancalaPosition) startingPosition;
+//
+//        if (!humanPlayFirst) {
+//            System.out.println("\nAI is making its move...");
+//            List<Object> v = alphaBeta(0, startingPosition, PROGRAM);
+//            if (v.size() > 1) {
+//                currentPosition = (MancalaPosition) v.get(1);
+//            }
+//        }
+//
+//        while (true) {
+//            printPosition(currentPosition);
+//
+//            if (currentPosition.isGameOver()) {
+//                System.out.println("\n" + currentPosition.getGameResult(true));
+//                break;
+//            }
+//
+//            // Human's turn
+//            if (currentPosition.isPlayerTurn()) {
+//                System.out.println("\nYour turn");
+//                System.out.println("Available moves: " + currentPosition.getAvailableMoves(true));
+//                Move move = createMove();
+//                currentPosition = (MancalaPosition) makeMove(currentPosition, HUMAN, move);
+//            }
+//            // AI's turn
+//            else {
+//                System.out.println("\nAI is thinking...");
+//                List<Object> v = alphaBeta(0, currentPosition, PROGRAM);
+//                if (v.size() > 1) {
+//                    currentPosition = (MancalaPosition) v.get(1);
+//                    System.out.println("AI made its move.");
+//                } else {
+//                    System.out.println(currentPosition.getGameResult(true));
+//                    break;
+//                }
+//            }
+//        }
+//    }
+public void playGameAgainstAI(Position startingPosition, boolean humanPlayFirst) {
+    MancalaPosition currentPosition = (MancalaPosition) startingPosition;
+    Scanner scanner = new Scanner(System.in);
 
-        if (!humanPlayFirst) {
-            System.out.println("\nAI is making its move...");
-            List<Object> v = alphaBeta(0, startingPosition, PROGRAM);
-            if (v.size() > 1) {
-                currentPosition = (MancalaPosition) v.get(1);
-            }
+    // Initial AI move if human does not play first
+    if (!humanPlayFirst) {
+        System.out.println("\nAI is making its move...");
+        List<Object> v = alphaBeta(0, startingPosition, PROGRAM);
+        if (v.size() > 1) {
+            currentPosition = (MancalaPosition) v.get(1);
+        }
+    }
+
+    // Main game loop
+    while (true) {
+        printPosition(currentPosition);
+
+        // Check for game over condition
+        if (currentPosition.isGameOver()) {
+            System.out.println("\n" + currentPosition.getGameResult(true));
+            break;
         }
 
-        while (true) {
-            printPosition(currentPosition);
+        // Human's turn
+        if (currentPosition.isPlayerTurn()) {
+            System.out.println("\nYour turn");
+            System.out.println("Available moves: " + currentPosition.getAvailableMoves(true));
+            System.out.println("Press 'S' to save the game or enter a pit number");
 
-            if (currentPosition.isGameOver()) {
-                System.out.println("\n" + currentPosition.getGameResult(true));
-                break;
+            String input = scanner.nextLine().trim().toUpperCase();
+
+            // Handle save game functionality
+            if (input.equals("S")) {
+                System.out.print("Enter a name for your save file: ");
+                String filename = scanner.nextLine();
+                GameSaveManager.saveGame(currentPosition, filename);
+                //System.out.println("Game saved successfully.");
+                break; // Allow for another turn after saving
             }
 
-            // Human's turn
-            if (currentPosition.isPlayerTurn()) {
-                System.out.println("\nYour turn");
-                System.out.println("Available moves: " + currentPosition.getAvailableMoves(true));
-                Move move = createMove();
+            // Process human move
+            try {
+                int pitIndex = Integer.parseInt(input);
+                Move move = createMove(); // Assuming createMove() uses pitIndex
                 currentPosition = (MancalaPosition) makeMove(currentPosition, HUMAN, move);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a pit number or 'S' to save.");
+                continue; // Restart loop for valid input
             }
-            // AI's turn
-            else {
-                System.out.println("\nAI is thinking...");
-                List<Object> v = alphaBeta(0, currentPosition, PROGRAM);
-                if (v.size() > 1) {
-                    currentPosition = (MancalaPosition) v.get(1);
-                    System.out.println("AI made its move.");
-                } else {
-                    System.out.println(currentPosition.getGameResult(true));
-                    break;
-                }
+        }
+        // AI's turn
+        else {
+            System.out.println("\nAI is thinking...");
+            List<Object> v = alphaBeta(0, currentPosition, PROGRAM);
+            if (v.size() > 1) {
+                currentPosition = (MancalaPosition) v.get(1);
+                System.out.println("AI made its move.");
+            } else {
+                System.out.println(currentPosition.getGameResult(true));
+                break; // End game if no valid moves are available
             }
         }
     }
+}
 
     public void playGameHumanVsHuman(Position startingPosition) {
         MancalaPosition currentPosition = (MancalaPosition) startingPosition;

@@ -19,12 +19,14 @@ public class GameSaveManager {
         if (!filename.endsWith(FILE_EXTENSION)) {
             filename += FILE_EXTENSION;
         }
+        filename = filename.replaceAll("[^a-zA-Z0-9.-]", "_");
 
         Path fullPath = Paths.get(SAVE_DIRECTORY, filename);
 
         try (ObjectOutputStream out = new ObjectOutputStream(
                 new BufferedOutputStream(Files.newOutputStream(fullPath)))) {
-            out.writeObject(position);
+            SaveGameData saveData = new SaveGameData(position, LocalDateTime.now());
+            out.writeObject(saveData);
             System.out.println("Game saved successfully to: " + fullPath);
         } catch (IOException e) {
             System.err.println("Error saving game: " + e.getMessage());
@@ -48,6 +50,30 @@ public class GameSaveManager {
             MancalaPosition position = (MancalaPosition) in.readObject();
             System.out.println("Game loaded successfully from: " + fullPath);
             return position;
+        } catch (IOException e) {
+            System.err.println("Error loading game: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error: Save file format is incompatible");
+        }
+        return null;
+    }
+    public static SaveGameData loadGamehaha(String filename) {
+        if (!filename.endsWith(FILE_EXTENSION)) {
+            filename += FILE_EXTENSION;
+        }
+
+        Path fullPath = Paths.get(SAVE_DIRECTORY, filename);
+
+        if (!Files.exists(fullPath)) {
+            System.err.println("Save file not found: " + fullPath);
+            return null;
+        }
+
+        try (ObjectInputStream in = new ObjectInputStream(
+                new BufferedInputStream(Files.newInputStream(fullPath)))) {
+            SaveGameData saveData = (SaveGameData) in.readObject();
+            System.out.println("Game loaded successfully from: " + fullPath);
+            return saveData;
         } catch (IOException e) {
             System.err.println("Error loading game: " + e.getMessage());
         } catch (ClassNotFoundException e) {
