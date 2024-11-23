@@ -5,7 +5,7 @@ A Java implementation of the traditional African board game Mancala, featuring A
 ## Authors
 
 - Zakariae Azarkan ([zachary013](https://github.com/zachary013))
-- Salah Eljably ([Sam-Jab](https://github.com/Sam-Jab))
+- Salaheddine Eljably ([Sam-Jab](https://github.com/Sam-Jab))
 
 ## Project Overview
 
