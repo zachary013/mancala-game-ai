@@ -81,7 +81,7 @@ public class MancalaGame {
     private static void loadSavedGame(Scanner scanner) {
         System.out.print("Enter the filename of the saved game: ");
         String filename = scanner.nextLine();
-        SaveGameData Game = GameSaveManager.loadGamehaha(filename);
+        SaveGameData Game = GameSaveManager.loadGame(filename);
         MancalaPosition savedGame = Game.getPosition();
         if (savedGame != null) {
             System.out.print("Continue this saved game? (y/n): ");

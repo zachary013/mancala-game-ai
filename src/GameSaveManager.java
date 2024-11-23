@@ -32,32 +32,7 @@ public class GameSaveManager {
             System.err.println("Error saving game: " + e.getMessage());
         }
     }
-
-    public static MancalaPosition loadGame(String filename) {
-        if (!filename.endsWith(FILE_EXTENSION)) {
-            filename += FILE_EXTENSION;
-        }
-
-        Path fullPath = Paths.get(SAVE_DIRECTORY, filename);
-
-        if (!Files.exists(fullPath)) {
-            System.err.println("Save file not found: " + fullPath);
-            return null;
-        }
-
-        try (ObjectInputStream in = new ObjectInputStream(
-                new BufferedInputStream(Files.newInputStream(fullPath)))) {
-            MancalaPosition position = (MancalaPosition) in.readObject();
-            System.out.println("Game loaded successfully from: " + fullPath);
-            return position;
-        } catch (IOException e) {
-            System.err.println("Error loading game: " + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            System.err.println("Error: Save file format is incompatible");
-        }
-        return null;
-    }
-    public static SaveGameData loadGamehaha(String filename) {
+    public static SaveGameData loadGame(String filename) {
         if (!filename.endsWith(FILE_EXTENSION)) {
             filename += FILE_EXTENSION;
         }
