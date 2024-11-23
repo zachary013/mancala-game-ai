@@ -11,6 +11,14 @@ A Java implementation of the traditional African board game Mancala, featuring A
 
 This implementation of Mancala goes beyond the traditional two-player game by incorporating artificial intelligence algorithms for computer opponents and a move suggestion system. The game features multiple difficulty levels and different AI strategies.
 
+## Game Preview
+
+![Mancla Game Board Preview](/screenshots/mancala1.jpg)
+*The main game board*
+
+![Terminal vue](/screenshots/mancala2.png)
+*Human vs AI terminal vue*
+
 ## Project Structure
 
 ```
