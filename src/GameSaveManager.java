@@ -17,16 +17,20 @@ public class GameSaveManager {
     }
 
     public static void saveGame(MancalaPosition position, String filename) {
+        // Ensure filename has correct extension
         if (!filename.endsWith(FILE_EXTENSION)) {
             filename += FILE_EXTENSION;
         }
         filename = filename.replaceAll("[^a-zA-Z0-9.-]", "_");
 
+        // Create full path for save file
         Path fullPath = Paths.get(SAVE_DIRECTORY, filename);
 
+        // Save game state using object serialization
         try (ObjectOutputStream out = new ObjectOutputStream(
                 new BufferedOutputStream(Files.newOutputStream(fullPath)))) {
             Gamemode gamemode ;
+            // Determine game mode (Human vs Human or Human vs AI)
             if(MancalaGame.gamemode == 2){
                 gamemode = Gamemode.H_vs_H;
             }

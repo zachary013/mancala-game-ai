@@ -4,6 +4,7 @@ class MancalaPosition extends Position implements Serializable {
     private int[] board;
     private boolean playerTurn;
 
+    //Initialize the board
     public MancalaPosition() {
         board = new int[14];
         for (int i = 0; i < 14; i++) {
@@ -27,12 +28,23 @@ class MancalaPosition extends Position implements Serializable {
         return playerTurn;
     }
 
+    /**
+     * Check if a move is valid for the current player
+     * @param pit The pit number to check
+     * @param isPlayer1 True if it's Player 1's turn, false otherwise
+     * @return True if the move is valid, false otherwise
+     */
     public boolean isValidMove(int pit, boolean isPlayer1) {
         int startIndex = isPlayer1 ? 0 : 7;
         int endIndex = isPlayer1 ? 5 : 12;
         return pit >= startIndex && pit <= endIndex && board[pit] > 0;
     }
 
+    /**
+     * Get a string representation of available moves for the current player
+     * @param isPlayer1 True if it's Player 1's turn, false otherwise
+     * @return String representation of available moves
+     */
     public String getAvailableMoves(boolean isPlayer1) {
         StringBuilder moves = new StringBuilder("(");
         int startIndex = isPlayer1 ? 0 : 7;
@@ -44,7 +56,7 @@ class MancalaPosition extends Position implements Serializable {
                 if (!first) {
                     moves.append(", ");
                 }
-                moves.append(isPlayer1 ? (i + 1) : (i)); // Always display the pit number as 1-12
+                moves.append(isPlayer1 ? (i + 1) : (i)); // Always display the pit number as 1-6 7-12
                 first = false;
             }
         }
@@ -63,6 +75,7 @@ class MancalaPosition extends Position implements Serializable {
         board[startPit] = 0;
         int currentPit = startPit;
 
+        // Distribute stones
         while (stones > 0) {
             currentPit = (currentPit + 1) % 14;
             if ((playerTurn && currentPit == 13) || (!playerTurn && currentPit == 6)) {
@@ -72,6 +85,7 @@ class MancalaPosition extends Position implements Serializable {
             stones--;
         }
 
+        // Check for capture
         if (currentPit != 6 && currentPit != 13) {
             if (board[currentPit] == 1) {
                 int oppositePit = 12 - currentPit;
@@ -148,6 +162,9 @@ class MancalaPosition extends Position implements Serializable {
         return false;
     }
 
+    /**
+     * Collect remaining stones when the game is over
+     */
     private void collectRemainingStones() {
         for (int i = 0; i <= 5; i++) {
             board[6] += board[i];
@@ -160,6 +177,11 @@ class MancalaPosition extends Position implements Serializable {
         }
     }
 
+    /**
+     * Get the game result as a formatted string
+     * @param isAIGame True if the game is against AI, false for human vs human
+     * @return Formatted string with game result
+     */
     public String getGameResult(boolean isAIGame) {
         if (!isGameOver()) return "Game is still in progress";
 
