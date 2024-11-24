@@ -2,6 +2,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
 
 public class GameSaveManager {
     private static final String SAVE_DIRECTORY = "mancala_saves";
@@ -25,7 +26,12 @@ public class GameSaveManager {
 
         try (ObjectOutputStream out = new ObjectOutputStream(
                 new BufferedOutputStream(Files.newOutputStream(fullPath)))) {
-            SaveGameData saveData = new SaveGameData(position, LocalDateTime.now());
+            Gamemode gamemode ;
+            if(MancalaGame.gamemode == 2){
+                gamemode = Gamemode.H_vs_H;
+            }
+            else { gamemode = Gamemode.H_vs_AI;}
+            SaveGameData saveData = new SaveGameData(position, LocalDateTime.now() , gamemode);
             out.writeObject(saveData);
             System.out.println("Game saved successfully to: " + fullPath);
         } catch (IOException e) {

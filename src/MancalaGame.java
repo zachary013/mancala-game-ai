@@ -3,6 +3,7 @@ import java.util.Scanner;
 public class MancalaGame {
     private static Mancala game;
     private static MancalaPosition currentPosition;
+    public static int gamemode;
 
     public static void main(String[] args) {
         game = new Mancala();
@@ -46,7 +47,7 @@ public class MancalaGame {
         scanner.close();
     }
 
-    private static int getGameMode(Scanner scanner) {
+    public static int getGameMode(Scanner scanner) {
         while (true) {
             try {
                 System.out.println("\nChoose game mode:");
@@ -59,6 +60,9 @@ public class MancalaGame {
 
                 int mode = Integer.parseInt(scanner.nextLine());
                 if (mode >= 1 && mode <= 5) {
+                    if(mode == 2 || mode == 1) {
+                        gamemode = mode;
+                    }
                     return mode;
                 }
                 System.out.println("Invalid choice. Please try again.");
@@ -112,9 +116,10 @@ public class MancalaGame {
             System.out.print("Continue this saved game? (y/n): ");
             if (scanner.nextLine().toLowerCase().startsWith("y")) {
                 currentPosition = savedGame;
-                game.playGameAgainstAI(currentPosition, true);
-
-                //System.out.println("Game loaded successfully. Returning to main menu.");
+                if(Game.getGamemode() == Gamemode.H_vs_H){
+                    game.playGameHumanVsHuman(currentPosition);
+                }
+                else game.playGameAgainstAI(currentPosition, true);
             }
         }
     }
